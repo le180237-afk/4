@@ -184,6 +184,18 @@
             border: 1px solid #9CA3AF;
             margin-bottom: 5px;
         }
+        
+        /* Style cho link Facebook */
+        .fb-link {
+            color: #BC002D;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .fb-link:hover {
+            color: #A30027;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -308,7 +320,12 @@
         <div class="app-footer">
             <img src="https://placehold.co/40x40/f7f7f7/9CA3AF?text=HUST" onerror="this.style.display='none'" class="hust-logo" alt="Logo ĐH Bách Khoa Hà Nội">
             <p class="text-xs font-medium text-gray-600">Đại học Bách Khoa Hà Nội (HUST)</p>
-            <p class="text-xs text-gray-500">Phát triển bởi <span class="font-semibold text-red-500">Lợi Lê IT E6</span></p>
+            <p class="text-xs text-gray-500">Phát triển bởi 
+                <!-- Đã thêm Link Facebook -->
+                <a href="https://web.facebook.com/profile.php?id=61576128322437" target="_blank" class="fb-link">
+                    <i class="fab fa-facebook-f mr-1"></i>Lợi Lê IT E6
+                </a>
+            </p>
         </div>
         
     </div>
@@ -572,7 +589,10 @@
         const pitchValue = $('#pitchValue');
         
         // Cập nhật: CHỈ HIỂN THỊ CÁC GIỌNG TIẾNG NHẬT
+        let voiceCheckInterval = null; // Biến để giữ interval
+
         function populateVoiceList() {
+            // Lấy lại danh sách giọng nói mỗi lần gọi
             voices = speechSynthesis.getVoices();
             voiceSelect.innerHTML = '';
             
@@ -580,7 +600,7 @@
             const jaVoices = voices.filter(voice => voice.lang.startsWith('ja'));
             
             if (jaVoices.length === 0) {
-                // Fallback option if no Japanese voice is found
+                // FALLBACK VÀ CẢNH BÁO
                 const fallbackOption = document.createElement('option');
                 fallbackOption.textContent = 'Giọng đọc mặc định (Không phải tiếng Nhật)';
                 fallbackOption.value = 'default_fallback';
@@ -600,13 +620,30 @@
                     voiceSelect.appendChild(option);
                 });
                 errorMessage.classList.add('hidden');
+                
+                // QUAN TRỌNG: Nếu giọng nói đã tải, dừng việc kiểm tra
+                if (voiceCheckInterval) {
+                    clearInterval(voiceCheckInterval);
+                }
             }
         }
         
-        populateVoiceList();
+        // Bắt đầu kiểm tra giọng nói (Đặc biệt quan trọng cho Safari/iOS)
+        function startVoiceCheck() {
+             populateVoiceList();
+             // Nếu danh sách rỗng, thử lại sau 200ms
+             if (voices.length === 0) {
+                 voiceCheckInterval = setInterval(populateVoiceList, 200);
+             }
+        }
+        
+        // Sự kiện khi danh sách giọng nói thay đổi (Chrome/Firefox)
         if (speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = populateVoiceList;
         }
+
+        // Bắt đầu kiểm tra khi window load (Quan trọng cho Safari/iOS)
+        window.onload = startVoiceCheck;
 
         rateRange.addEventListener('input', () => rateValue.textContent = rateRange.value);
         pitchRange.addEventListener('input', () => pitchValue.textContent = pitchRange.value);
@@ -638,9 +675,8 @@
             }
         });
 
-        speakerButton.addEventListener('click', () => {
-            // Phát âm Hiragana để giọng đọc tự nhiên nhất
-            const text = hiraganaOutput.textContent || romajiOutput.textContent; 
+        // HÀM XỬ LÝ PHÁT ÂM (Tối ưu cho iOS)
+        function speakText(text) {
             if (!text) return;
             
             // Xóa bỏ các lệnh đang chờ xử lý
@@ -650,9 +686,12 @@
 
             const utterance = new SpeechSynthesisUtterance(text);
             
-            // Tìm giọng đọc được chọn
+            // Cần lấy lại danh sách giọng nói ngay tại thời điểm click, đề phòng iOS chưa tải
+            const currentVoices = speechSynthesis.getVoices();
+            
             const selectedVoiceName = voiceSelect.value;
-            const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
+            // Tìm giọng đọc được chọn trong danh sách hiện tại
+            const selectedVoice = currentVoices.find(voice => voice.name === selectedVoiceName);
             
             if (selectedVoice && selectedVoiceName !== 'default_fallback') {
                 utterance.voice = selectedVoice;
@@ -673,6 +712,12 @@
             };
 
             speechSynthesis.speak(utterance);
+        }
+
+        speakerButton.addEventListener('click', () => {
+            // Phát âm Hiragana để giọng đọc tự nhiên nhất
+            const textToSpeak = hiraganaOutput.textContent || romajiOutput.textContent; 
+            speakText(textToSpeak);
         });
 
         function copyToClipboard(text, buttonElement) {
