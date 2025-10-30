@@ -165,6 +165,25 @@
             padding: 15px;
             background-color: #F9FAFB;
         }
+        
+        /* Style cho Footer mới */
+        .app-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #E5E7EB;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+        }
+        .hust-logo {
+            width: 40px;
+            height: auto;
+            border-radius: 50%;
+            border: 1px solid #9CA3AF;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -198,7 +217,7 @@
                 <!-- Giọng Đọc -->
                 <div class="flex flex-col">
                     <label for="voiceSelect" class="font-medium text-gray-600 mb-1">
-                        <i class="fas fa-microphone text-blue-500 mr-1"></i> Giọng Đọc:
+                        <i class="fas fa-microphone text-blue-500 mr-1"></i> Giọng Đọc (Chỉ hiển thị giọng Nhật):
                     </label>
                     <select id="voiceSelect" class="input-field w-full">
                         <!-- Options will be populated by JavaScript -->
@@ -388,7 +407,7 @@
             'ichiman': 'いちまん',
             'sanbyaku': 'さんびゃく', 'roppyaku': 'ろっぴゃく', 'happyaku': 'はっぴゃく',
             'sanzen': 'さんぜん', 'hassen': 'はっせん',
-            'ichi': 'いち', 'ni': 'に', 'san': 'さん', 'yon': 'よん', 'dama': 'だま',
+            'ichi': 'いち', 'ni': 'に', 'san': 'さん', 'yon': 'よん', 
             'go': 'ご', 'roku': 'ろく', 'nana': 'なな', 'hachi': 'はち', 'kyuu': 'きゅう',
             'juu': 'じゅう'
         };
@@ -412,7 +431,6 @@
                 } else {
                     // Xử lý các âm tiết còn lại (chủ yếu là các từ đơn vị 1-9 và "juu", "hyaku", "sen" còn sót lại)
                     
-                    // Ví dụ: 20000 -> nijuuman. Cần xử lý từng phần
                     let temp = '';
                     let i = 0;
                     while (i < part.length) {
@@ -436,32 +454,29 @@
                             i += 1;
                             matched = true;
                         }
-                        // Xử lý âm 'n' và 't' đứng trước (như "sanzen" đã được xử lý ở trên, nhưng cần phòng trường hợp khác)
-                        else if (part[i] === 't' && i + 1 < part.length && part[i + 1] === 's') {
-                            temp += 'っ'; // Âm T nhỏ trước s
-                            i += 1;
-                            matched = true;
-                        }
-                        else if (part[i] === 'c' && i + 1 < part.length && part[i + 1] === 'h') {
-                            temp += 'っ'; // Âm T nhỏ trước ch
-                            i += 1;
-                            matched = true;
+                        // Xử lý âm 't' nhỏ (âm đôi)
+                        else if (part[i] === part[i+1] && i + 1 < part.length && 'ksthnmrygbp'.includes(part[i+1])) {
+                             temp += 'っ';
+                             i += 1; // Chỉ tiêu thụ 1 ký tự, để ký tự đôi tiếp theo được xử lý bình thường (ví dụ: roppyaku -> ro-p-pyaku)
+                             matched = true;
                         }
                          else {
-                            // Nếu không khớp, bỏ qua hoặc thêm nguyên văn (nên tránh)
+                            // Nếu không khớp, thêm nguyên văn
                             console.warn("Lỗi chuyển đổi Hiragana ở Romaji: " + part.substring(i));
                             temp += part[i]; 
                             i++;
                         }
                     }
                     
-                    // Xử lý âm kéo dài (oo, uu, ii, ee) -> ō, ū, ī, ē
-                    // NOTE: Với số, thường không cần xử lý âm dài như shichi, kyuu đã có trong map.
-                    
                     hiragana += temp;
                 }
             }
-
+            
+            // Xử lý các trường hợp âm kép đặc biệt trong Hiragana nếu còn sót
+            // Ví dụ: ju-u -> jū (giọng dài)
+            hiragana = hiragana.replace(/うう/g, 'う');
+            hiragana = hiragana.replace(/おお/g, 'おう');
+            
             return hiragana;
         }
 
@@ -556,35 +571,35 @@
         const rateValue = $('#rateValue');
         const pitchValue = $('#pitchValue');
         
+        // Cập nhật: CHỈ HIỂN THỊ CÁC GIỌNG TIẾNG NHẬT
         function populateVoiceList() {
             voices = speechSynthesis.getVoices();
             voiceSelect.innerHTML = '';
             
-            // Tìm kiếm giọng đọc tiếng Nhật (ja-JP)
-            const jaVoice = voices.find(voice => voice.lang === 'ja-JP' || voice.name.includes('Japanese'));
+            // LỌC: CHỈ GIỮ LẠI CÁC GIỌNG TIẾNG NHẬT (ja-JP)
+            const jaVoices = voices.filter(voice => voice.lang.startsWith('ja'));
             
-            // Tạo option cho giọng đọc Nhật Bản (ưu tiên)
-            const defaultOption = document.createElement('option');
-            defaultOption.textContent = jaVoice ? `${jaVoice.name} (${jaVoice.lang})` : 'Microsoft Ayumi - Japanese (ja-JP)';
-            defaultOption.value = jaVoice ? jaVoice.name : 'Microsoft Ayumi';
-            defaultOption.selected = true;
-            voiceSelect.appendChild(defaultOption);
-
-            // Thêm tất cả các giọng khác vào danh sách
-            voices.forEach(voice => {
-                if (voice.lang !== 'ja-JP' && !voice.name.includes('Japanese')) {
-                    const option = document.createElement('option');
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    option.value = voice.name;
-                    voiceSelect.appendChild(option);
-                }
-            });
-
-            if (!jaVoice) {
-                errorText.textContent = "Cảnh báo: Trình duyệt không có giọng đọc tiếng Nhật (ja-JP). Sẽ sử dụng giọng mặc định cần có (có thể không phải tiếng Nhật).";
+            if (jaVoices.length === 0) {
+                // Fallback option if no Japanese voice is found
+                const fallbackOption = document.createElement('option');
+                fallbackOption.textContent = 'Giọng đọc mặc định (Không phải tiếng Nhật)';
+                fallbackOption.value = 'default_fallback';
+                voiceSelect.appendChild(fallbackOption);
+                
+                errorText.textContent = "Cảnh báo: Trình duyệt của bạn không tìm thấy giọng đọc tiếng Nhật (ja-JP). Âm thanh có thể bị phát âm sai.";
                 errorMessage.classList.remove('hidden');
             } else {
-                 errorMessage.classList.add('hidden');
+                jaVoices.forEach((voice, index) => {
+                    const option = document.createElement('option');
+                    // Thể hiện rõ tên và ngôn ngữ của giọng đọc
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.name;
+                    if (index === 0) { // Chọn giọng Nhật đầu tiên làm mặc định
+                        option.selected = true;
+                    }
+                    voiceSelect.appendChild(option);
+                });
+                errorMessage.classList.add('hidden');
             }
         }
         
@@ -627,6 +642,11 @@
             // Phát âm Hiragana để giọng đọc tự nhiên nhất
             const text = hiraganaOutput.textContent || romajiOutput.textContent; 
             if (!text) return;
+            
+            // Xóa bỏ các lệnh đang chờ xử lý
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
 
             const utterance = new SpeechSynthesisUtterance(text);
             
@@ -634,11 +654,11 @@
             const selectedVoiceName = voiceSelect.value;
             const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
             
-            if (selectedVoice) {
+            if (selectedVoice && selectedVoiceName !== 'default_fallback') {
                 utterance.voice = selectedVoice;
             }
 
-            // Đảm bảo ngôn ngữ được đặt là ja-JP để giọng đọc đúng tone
+            // QUAN TRỌNG: Đảm bảo ngôn ngữ luôn được đặt là ja-JP để giọng đọc đúng tone
             utterance.lang = 'ja-JP';
 
             utterance.rate = parseFloat(rateRange.value);
@@ -646,7 +666,8 @@
             
             // Bắt lỗi phát âm
             utterance.onerror = (event) => {
-                errorText.textContent = "Lỗi: Không thể phát âm thanh. Vui lòng thử lại sau.";
+                console.error("Speech Synthesis Error:", event);
+                errorText.textContent = "Lỗi: Không thể phát âm thanh. Vui lòng thử lại hoặc chọn giọng đọc khác.";
                 errorMessage.classList.remove('hidden');
                 setTimeout(() => errorMessage.classList.add('hidden'), 5000);
             };
