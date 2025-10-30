@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -25,6 +25,7 @@
             --romaji-color: #BC002D;
             --hiragana-color: #1F2937;
             --title-color-light: #BC002D; /* Màu Đỏ HUST/Nhật */
+            --ad-border-color: #FFD700; /* Màu Vàng Kim */
         }
 
         /* Dark Theme */
@@ -40,6 +41,7 @@
             --romaji-color: #FCA5A5; /* Light Red */
             --hiragana-color: #D1D5DB; /* Light Gray */
             --title-color-dark: #FFD700; /* Màu Vàng Kim */
+            --ad-border-color: #10B981; /* Màu Xanh Tech */
         }
 
         /* Cài đặt chung */
@@ -328,19 +330,72 @@
             padding-top: 20px;
             border-top: 1px solid var(--border-color);
         }
+        .logo-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px; /* Khoảng cách giữa hai logo */
+            margin-bottom: 8px;
+        }
+        
         .hust-logo {
             width: 45px;
             height: 45px;
-            margin-bottom: 8px;
             border-radius: 50%;
             border: 2px solid #BC002D;
             background-color: #FFFFFF;
             object-fit: contain;
+            transition: all 0.3s;
         }
         .dark .hust-logo {
              border-color: #FCA5A5;
              background-color: #1F2937;
         }
+
+        /* Logo Quảng Cáo */
+        .ad-logo-container {
+            display: block;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .ad-logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid var(--ad-border-color); /* Viền màu vàng kim/xanh tech */
+            background-color: #1F2937;
+            object-fit: contain;
+            padding: 2px;
+            transition: all 0.3s;
+        }
+        
+        .ad-logo:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 10px var(--ad-border-color);
+        }
+        
+        .ad-logo-container::after {
+            content: "QC";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            background-color: #FFC300;
+            border-radius: 5px;
+            padding: 1px 4px;
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            animation: blink 2s infinite alternate;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.7; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+
         .fb-link {
             color: #3B82F6;
             text-decoration: none;
@@ -507,13 +562,23 @@
             </div>
         </div>
 
-        <!-- FOOTER: THÔNG TIN TÁC GIẢ VÀ BÁCH KHOA HÀ NỘI -->
+        <!-- FOOTER: THÔNG TIN TÁC GIẢ VÀ BÁCH KHOA HÀ NỘI + QUẢNG CÁO -->
         <div class="app-footer">
-            <!-- Thay placeholder bằng logo HUST (Placeholder HUST) -->
-            <img src="https://soict.hust.edu.vn/wp-content/uploads/logo-soict-hust-1-1024x416.png" 
-                 onerror="this.style.display='none'" 
-                 class="hust-logo" 
-                 alt="Logo ĐH Bách Khoa Hà Nội">
+            <div class="logo-group">
+                <!-- LOGO HUST -->
+                <img src="https://soict.hust.edu.vn/innovation/wp-content/uploads/2019/08/logo-Hedspi-Consortium.jpg" 
+                     onerror="this.style.display='none'" 
+                     class="hust-logo" 
+                     alt="Logo IT E6">
+
+                <!-- LOGO QUẢNG CÁO (IT E6 Solutions - Giả định) -->
+                <a href="https://www.facebook.com/profile.php?id=61582454824206#" target="_blank" class="ad-logo-container">
+                    <img src="https://scontent.fhan2-4.fna.fbcdn.net/v/t39.30808-6/565656206_122098481541081827_3705995803658091191_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeHCN-a_ma_el4dkUHpIit7GVWdVyshkA7FVZ1XKyGQDsQZBrzCzHXAYOAsAa9jPEDm8ieYjlzzFUJEXBY7Q3EHk&_nc_ohc=279SYTMupqQQ7kNvwEJ-fhl&_nc_oc=Adk3oAgbfrCDEcw8edrWMn8VU79vpAX-xjkf1z5e09gg_Zd2BUeE8ec0Ey4Oe2YDLRQ&_nc_zt=23&_nc_ht=scontent.fhan2-4.fna&_nc_gid=8hJYpeO5k5ptAi67ZoZ8fw&oh=00_AfdX6cnUhPuR3E1RlXPf-bfJUBlDqJTilLKHYHMhjxv4Qw&oe=6909D377" 
+                         onerror="this.style.display='none'" 
+                         class="ad-logo" 
+                         alt="Logo Quảng Cáo">
+                </a>
+            </div>
             <p class="text-xs font-medium text-gray-600 dark:text-gray-400 transition-colors">Đại học Bách Khoa Hà Nội (HUST)</p>
             <p class="text-xs text-gray-500 dark:text-gray-500 transition-colors">Phát triển bởi 
                 <!-- Đã thêm Link Facebook -->
@@ -607,87 +672,98 @@
             'ya': 'や', 'yu': 'ゆ', 'yo': 'よ',
             'ra': 'ら', 'ri': 'り', 'ru': 'る', 're': 'れ', 'ro': 'ろ',
             'wa': 'わ', 'wo': 'を', 'n': 'ん',
+            
+            // Dakuon
             'ga': 'が', 'gi': 'ぎ', 'gu': 'ぐ', 'ge': 'げ', 'go': 'ご',
             'za': 'ざ', 'ji': 'じ', 'zu': 'ず', 'ze': 'ぜ', 'zo': 'ぞ',
             'da': 'だ', 'de': 'で', 'do': 'ど',
             'ba': 'ば', 'bi': 'び', 'bu': 'ぶ', 'be': 'べ', 'bo': 'ぼ',
+            
+            // Handakuon
             'pa': 'ぱ', 'pi': 'ぴ', 'pu': 'ぷ', 'pe': 'ぺ', 'po': 'ぽ',
             
-            // Âm dài và các âm đặc biệt (Đã được chuyển đổi trong hàm logic)
-            'juu': 'じゅう', 'hyaku': 'ひゃく', 'sen': 'せん', 'man': 'まん', 'zero': 'ぜろ',
+            // Yōon (Âm ghép) - Thêm vào để xử lý ưu tiên
+            'kya': 'きゃ', 'kyu': 'きゅ', 'kyo': 'きょ',
+            'sha': 'しゃ', 'shu': 'しゅ', 'sho': 'しょ',
+            'cha': 'ちゃ', 'chu': 'ちゅ', 'cho': 'ちょ',
+            'nya': 'にゃ', 'nyu': 'にゅ', 'nyo': 'にょ',
+            'hya': 'ひゃ', 'hyu': 'ひゅ', 'hyo': 'ひょ',
+            'mya': 'みゃ', 'myu': 'みゅ', 'myo': 'みょ',
+            'rya': 'りゃ', 'ryu': 'りゅ', 'ryo': 'りょ',
+            'gya': 'ぎゃ', 'gyu': 'ぎゅ', 'gyo': 'ぎょ',
+            'ja': 'じゃ', 'ju': 'じゅ', 'jo': 'じょ', // jya, jyu, jyo không dùng phổ biến
+            'bya': 'びゃ', 'byu': 'びゅ', 'byo': 'びょ',
+            'pya': 'ぴゃ', 'pyu': 'ぴゃ', 'pyo': 'ぴょ',
             
+            // Từ đặc biệt trong cách đếm (đã có biến âm)
+            'juu': 'じゅう', 'hyaku': 'ひゃく', 'sen': 'せん', 'man': 'まん', 'zero': 'ぜろ',
             'ichiman': 'いちまん',
+            
+            // Biến âm HÀNG TRĂM/NGÀN đã chuẩn hóa (chỉ để tham chiếu)
             'sanbyaku': 'さんびゃく', 'roppyaku': 'ろっぴゃく', 'happyaku': 'はっぴゃく',
             'sanzen': 'さんぜん', 'hassen': 'はっせん',
+            
+            // Âm đơn vị
             'ichi': 'いち', 'ni': 'に', 'san': 'さん', 'yon': 'よん', 
             'go': 'ご', 'roku': 'ろく', 'nana': 'なな', 'hachi': 'はち', 'kyuu': 'きゅう',
-            'juu': 'じゅう'
         };
 
         function romajiToHiragana(romaji) {
-            // Chuẩn hóa Romaji để xử lý các từ ghép số đặc biệt
-            // Tách các từ Romaji số đặc biệt
-            for (const key in hiraganaMap) {
-                if (key.length > 2) { // Chỉ xử lý các từ dài như juu, hyaku, ichiman, sanbyaku...
-                    romaji = romaji.replace(new RegExp(key, 'g'), `__${key}__`);
-                }
-            }
-
-            // Chia Romaji đã được xử lý thành các phần
-            let parts = romaji.split('__').filter(p => p.length > 0);
             let hiragana = '';
+            let i = 0;
 
-            for (let part of parts) {
-                if (hiraganaMap[part]) {
-                    hiragana += hiraganaMap[part]; // Nếu là từ đặc biệt, sử dụng Hiragana đặc biệt
-                } else {
-                    // Xử lý các âm tiết còn lại
-                    
-                    let temp = '';
-                    let i = 0;
-                    while (i < part.length) {
-                        let matched = false;
+            // Xóa khoảng trắng để xử lý nguyên khối
+            let cleanRomaji = romaji.replace(/\s/g, ''); 
 
-                        // Ưu tiên khớp 3 ký tự (kyuu, shi, tsu...)
-                        if (i + 3 <= part.length && hiraganaMap[part.substring(i, i + 3)]) {
-                            temp += hiraganaMap[part.substring(i, i + 3)];
-                            i += 3;
-                            matched = true;
-                        } 
-                        // Ưu tiên khớp 2 ký tự (sa, ki, ta...)
-                        else if (i + 2 <= part.length && hiraganaMap[part.substring(i, i + 2)]) {
-                            temp += hiraganaMap[part.substring(i, i + 2)];
-                            i += 2;
-                            matched = true;
-                        } 
-                        // Khớp 1 ký tự (n, a, i, u, e, o)
-                        else if (i + 1 <= part.length && hiraganaMap[part.substring(i, i + 1)]) {
-                            temp += hiraganaMap[part.substring(i, i + 1)];
-                            i += 1;
-                            matched = true;
-                        }
-                        // Xử lý âm 't' nhỏ (âm đôi)
-                        else if (part[i] === part[i+1] && i + 1 < part.length && 'ksthnmrygbp'.includes(part[i+1])) {
-                             temp += 'っ';
-                             i += 1; // Chỉ tiêu thụ 1 ký tự, để ký tự đôi tiếp theo được xử lý bình thường (ví dụ: roppyaku -> ro-p-pyaku)
-                             matched = true;
-                        }
-                         else {
-                            // Nếu không khớp, thêm nguyên văn
-                            console.warn("Lỗi chuyển đổi Hiragana ở Romaji: " + part.substring(i));
-                            temp += part[i]; 
-                            i++;
-                        }
+            while (i < cleanRomaji.length) {
+                let matched = false;
+
+                // 1. Ưu tiên khớp 4 ký tự (chỉ áp dụng cho từ đặc biệt)
+                if (i + 4 <= cleanRomaji.length && hiraganaMap[cleanRomaji.substring(i, i + 4)]) {
+                    const sub = cleanRomaji.substring(i, i + 4);
+                    // Chỉ áp dụng cho các từ đặc biệt đã được định nghĩa
+                    if (['ichiman', 'sanbyaku', 'roppyaku', 'happyaku', 'sanzen', 'hassen'].includes(sub)) {
+                        hiragana += hiraganaMap[sub];
+                        i += 4;
+                        matched = true;
                     }
-                    
-                    hiragana += temp;
+                }
+                
+                // 2. Ưu tiên khớp 3 ký tự (Yōon, juu, sen, ichi, kyuu...)
+                if (!matched && i + 3 <= cleanRomaji.length && hiraganaMap[cleanRomaji.substring(i, i + 3)]) {
+                    hiragana += hiraganaMap[cleanRomaji.substring(i, i + 3)];
+                    i += 3;
+                    matched = true;
+                }
+                // 3. Ưu tiên khớp 2 ký tự (ju, ha, ki, ni, ...)
+                else if (!matched && i + 2 <= cleanRomaji.length && hiraganaMap[cleanRomaji.substring(i, i + 2)]) {
+                    hiragana += hiraganaMap[cleanRomaji.substring(i, i + 2)];
+                    i += 2;
+                    matched = true;
+                }
+                // 4. Xử lý âm đôi 'tsu' nhỏ (sokuon) - Tức là hai phụ âm giống nhau: 'tt', 'kk', 'pp', etc.
+                else if (!matched && i + 1 < cleanRomaji.length && cleanRomaji[i] === cleanRomaji[i + 1] && 'ksthp'.includes(cleanRomaji[i+1])) {
+                    hiragana += 'っ';
+                    i += 1; // Chỉ tiêu thụ 1 ký tự, để ký tự đôi tiếp theo được xử lý bình thường 
+                    matched = true;
+                }
+                // 5. Khớp 1 ký tự (n, a, i, u, e, o)
+                else if (!matched && i + 1 <= cleanRomaji.length && hiraganaMap[cleanRomaji.substring(i, i + 1)]) {
+                    hiragana += hiraganaMap[cleanRomaji.substring(i, i + 1)];
+                    i += 1;
+                    matched = true;
+                }
+                
+                if (!matched && i < cleanRomaji.length) {
+                    // Fallback an toàn nếu có lỗi logic (Nên là ký tự 'n' không có âm tiết theo sau)
+                    // console.warn("Lỗi chuyển đổi Hiragana ở Romaji: " + cleanRomaji.substring(i));
+                    hiragana += cleanRomaji[i];
+                    i++;
                 }
             }
             
-            // Xử lý các trường hợp âm kép đặc biệt trong Hiragana nếu còn sót
-            // Ví dụ: ju-u -> jū (giọng dài)
+            // Xử lý các trường hợp âm dài (chỉ nên xảy ra nếu không được xử lý trong từ đặc biệt)
             hiragana = hiragana.replace(/うう/g, 'う');
-            hiragana = hiragana.replace(/おお/g, 'おう');
             
             return hiragana;
         }
@@ -706,7 +782,8 @@
                 tempNum %= 10000;
                 
                 if (manPart > 1) {
-                    romaji += convertLessThan10000(manPart) + 'man';
+                    // Thêm khoảng trắng giữa các nhóm (vd: sanman hassen)
+                    romaji += convertLessThan10000(manPart, false) + 'man'; 
                 } else if (manPart === 1) {
                     romaji += 'ichiman'; // 10,000 thường là ichiman
                 }
@@ -714,14 +791,19 @@
 
             // Xử lý Hàng ngàn, Trăm, Chục, Đơn vị (Dưới 10000)
             if (tempNum > 0) {
-                romaji += convertLessThan10000(tempNum);
+                // Thêm khoảng trắng nếu có phần man trước đó
+                if (romaji.length > 0) {
+                    romaji += ' ';
+                }
+                romaji += convertLessThan10000(tempNum, true);
             }
 
             // Loại bỏ trường hợp chuỗi rỗng
             return romaji.trim() || convertLessThan10000(num);
         }
 
-        function convertLessThan10000(n) {
+        // isTrailingBlock: Chỉ định xem khối số này có phải là cuối cùng (đơn vị) không
+        function convertLessThan10000(n, isTrailingBlock) {
             let s = '';
             let num = n;
 
@@ -899,7 +981,9 @@
                 errorMessage.classList.remove('hidden');
                 resultBox.classList.add('hidden');
             } else {
-                const hiragana = romajiToHiragana(romaji);
+                // Xóa khoảng trắng trong romaji trước khi chuyển đổi sang hiragana
+                const romajiNoSpaces = romaji.replace(/\s/g, ''); 
+                const hiragana = romajiToHiragana(romajiNoSpaces);
 
                 // Cập nhật DOM
                 romajiOutput.textContent = romaji;
@@ -1067,4 +1151,3 @@
     </script>
 </body>
 </html>
-
