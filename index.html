@@ -23,6 +23,10 @@
     }
 
     body {
+      <body>
+    <canvas id="matrix-background"></canvas>
+    
+    <div class="card" id="appCard" role="main" aria-labelledby="appTitle">
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
       background: var(--page-bg);
       min-height: 100vh;
@@ -48,7 +52,29 @@
       border-radius: 0.75rem;
       box-shadow: inset 0 1px 3px rgba(0,0,0,0.03);
     }
+    /* ... (Code CSS hiện có, kết thúc khoảng dòng 54) ... */
+    } 
+ 
+    /* THÊM CSS MATRIX RAIN VÀO ĐÂY (SAU DÒNG 54) */
+    #matrix-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1; /* Đặt dưới tất cả nội dung khác */
+    }
 
+    /* Đảm bảo nội dung app ở trên matrix */
+    .card {
+        position: relative;
+        z-index: 10;
+        /* Vẫn giữ các thuộc tính khác của .card */
+    }
+ 
+    /* Result text styling */
+    .result-panel {
+/* ... (Tiếp tục code CSS hiện có, bắt đầu lại từ dòng 56) ... */
     .result-text {
       font-weight: 800;
       font-size: 1.9rem;
