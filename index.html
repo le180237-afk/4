@@ -509,6 +509,21 @@
 
         <!-- KHỐI KẾT QUẢ -->
         <div id="resultBox" class="result-group hidden">
+            <!-- Kanji Result -->
+            <div class="mb-3">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-sm font-semibold text-gray-700 flex items-center dark:text-gray-400">
+                        <i class="fas fa-scroll text-orange-500 mr-2"></i> Kết Quả Kanji:
+                    </span>
+                    <button id="copyKanjiButton" class="control-button px-3 py-1 rounded-full text-xs font-semibold">
+                        <i class="fas fa-copy mr-1"></i> Copy K.
+                    </button>
+                </div>
+                <div id="kanjiOutput" class="text-3xl font-semibold" style="color: #0077B6; text-align: center; padding-top: 5px; word-break: break-word; line-height: 1.5;"></div>
+            </div>
+
+            <div class="border-t border-red-200 my-3 dark:border-red-800"></div> <div>
+
             
             <!-- Romaji Result -->
             <div class="mb-3">
@@ -706,6 +721,16 @@
             'ichi': 'いち', 'ni': 'に', 'san': 'さん', 'yon': 'よん', 
             'go': 'ご', 'roku': 'ろく', 'nana': 'なな', 'hachi': 'はち', 'kyuu': 'きゅう',
         };
+        // Thêm đoạn code này vào ngay sau hiraganaMap:
+
+        const kanjiMap = {
+            0: '零', // Rei
+            1: '一', 2: '二', 3: '三', 4: '四', 5: '五',
+            6: '六', 7: '七', 8: '八', 9: '九',
+            10: '十', 100: '百', 1000: '千', 10000: '万',
+            // Số lớn (Triệu)
+            1000000: '百万',
+        };
 
         function romajiToHiragana(romaji) {
             let hiragana = '';
@@ -766,6 +791,67 @@
             
             return hiragana;
         }
+        // Thêm hàm này vào khu vực Logic chuyển đổi của bạn:
+
+        // Hàm chuyển đổi số sang Kanji (dạng số đếm)
+        function convertToKanji(num) {
+            if (num < 0 || num > 9999999) return "Lỗi phạm vi số (Kanji)";
+            if (num === 0) return kanjiMap[0];
+            
+            let kanji = '';
+            let tempNum = num;
+
+            // Xử lý Hàng triệu (Man - 10,000)
+            if (tempNum >= 10000) {
+                const manPart = Math.floor(tempNum / 10000);
+                tempNum %= 10000;
+                
+                kanji += convertLessThan10000Kanji(manPart) + kanjiMap[10000];
+            }
+
+            // Xử lý Hàng ngàn, Trăm, Chục, Đơn vị (Dưới 10000)
+            if (tempNum > 0) {
+                kanji += convertLessThan10000Kanji(tempNum);
+            }
+
+            return kanji.replace(/^一(千|百|十)/, '$1'); // Xóa "一" khi đứng trước "千, 百, 十" (quy tắc đếm Nhật)
+        }
+
+        // Hàm con để chuyển đổi dưới 10000 sang Kanji
+        function convertLessThan10000Kanji(n) {
+            let s = '';
+            let num = n;
+
+            // Hàng ngàn
+            if (num >= 1000) {
+                const sen = Math.floor(num / 1000);
+                num %= 1000;
+                s += kanjiMap[sen] + kanjiMap[1000];
+            }
+
+            // Hàng trăm
+            if (num >= 100) {
+                const hyaku = Math.floor(num / 100);
+                num %= 100;
+                s += kanjiMap[hyaku] + kanjiMap[100];
+            }
+
+            // Hàng chục
+            if (num >= 10) {
+                const juu = Math.floor(num / 10);
+                num %= 10;
+                s += (juu > 1 ? kanjiMap[juu] : '') + kanjiMap[10];
+            }
+
+            // Đơn vị
+            if (num > 0) {
+                s += kanjiMap[num];
+            }
+
+            return s;
+        }
+
+    
 
 
         function convertToRomaji(num) {
@@ -850,9 +936,11 @@
         const resultBox = $('#resultBox');
         const romajiOutput = $('#romajiOutput');
         const hiraganaOutput = $('#hiraganaOutput');
+        const kanjiOutput = $('#kanjiOutput'); // <--- THÊM DÒNG NÀY
         const speakerButton = $('#speakerButton');
         const copyRomajiButton = $('#copyRomajiButton');
         const copyHiraganaButton = $('#copyHiraganaButton');
+        const copyKanjiButton = $('#copyKanjiButton'); // <--- THÊM DÒNG NÀY
         const errorMessage = $('#errorMessage');
         const errorText = $('#errorText');
         const autoSpeakCheckbox = $('#autoSpeakCheckbox');
@@ -925,8 +1013,8 @@
         pitchRange.addEventListener('input', () => pitchValue.textContent = pitchRange.value);
 
         // --- XỬ LÝ LỊCH SỬ ---
-        function saveToHistory(number, romaji, hiragana) {
-            const newItem = { number, romaji, hiragana, time: new Date().toLocaleTimeString() };
+        function saveToHistory(number, romaji, hiragana, kanji) {
+            const newItem = { number, romaji, hiragana, kanji, time: new Date().toLocaleTimeString() };
             // Thêm vào đầu mảng
             conversionHistory.unshift(newItem);
             // Giới hạn 5 mục
@@ -954,6 +1042,7 @@
                         <span class="font-bold text-base text-red-700 dark:text-red-400 mr-2">${item.number}</span>
                         <span class="font-mono">${item.romaji}</span> 
                         <span class="text-gray-500 text-sm"> / ${item.hiragana}</span>
+                        <span class="text-blue-700 text-sm font-semibold dark:text-blue-300"> / ${item.kanji}</span>
                     </div>
                     <span class="text-gray-400 italic">${item.time}</span>
                 `;
@@ -983,10 +1072,13 @@
                 // Xóa khoảng trắng trong romaji trước khi chuyển đổi sang hiragana
                 const romajiNoSpaces = romaji.replace(/\s/g, ''); 
                 const hiragana = romajiToHiragana(romajiNoSpaces);
+                // THÊM dòng sau:
+                const kanji = convertToKanji(num); // <--- LẤY KẾT QUẢ KANJI
 
                 // Cập nhật DOM
                 romajiOutput.textContent = romaji;
                 hiraganaOutput.textContent = hiragana;
+                kanjiOutput.textContent = kanji; // <--- CẬP NHẬT KẾT QUẢ KANJI
                 
                 errorMessage.classList.add('hidden');
                 resultBox.classList.remove('hidden');
@@ -1087,6 +1179,10 @@
         copyHiraganaButton.addEventListener('click', () => {
             copyToClipboard(hiraganaOutput.textContent, copyHiraganaButton);
         });
+        // --- COPY KANJI BUTTON (MỚI) ---
+        copyKanjiButton.addEventListener('click', () => {
+            copyToClipboard(kanjiOutput.textContent, copyKanjiButton);
+        });
 
         // Xử lý sự kiện Enter
         inputNumber.addEventListener('keydown', (e) => {
