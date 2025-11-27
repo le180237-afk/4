@@ -488,9 +488,9 @@
                 <i class="fas fa-hashtag text-red-500 mr-2"></i> Nhập Số Cần Chuyển Đổi:
             </h3>
             
-            <input type="number" id="inputNumber" placeholder="Ví dụ: 10000, 350000, 9999999" 
+            <input type="text" id="inputNumber" placeholder="Ví dụ: 10000, 350000, 9999999" 
                    class="input-field w-full text-xl text-center tracking-wide" 
-                   min="0" max="9999999">
+                   min="0"> ```
         </div>
 
         <!-- NÚT CHUYỂN ĐỔI & CONTROL -->
@@ -610,7 +610,7 @@
         const $ = selector => document.querySelector(selector);
         const $$ = selector => document.querySelectorAll(selector); 
         // HẰNG SỐ CỦA ỨNG DỤNG
-        const MAX_ALLOWED_NUMBER = 9999999;
+        const MAX_ALLOWED_NUMBER = ;
 
         // --- CÀI ĐẶT MATRIX BACKGROUND (JAPANESE CODE STYLE) ---
         const canvas = $('#matrix-background');
@@ -1107,23 +1107,37 @@
 
         // --- EVENT LISTENERS ---
         convertButton.addEventListener('click', () => {
-            const numStr = inputNumber.value.trim();
-            const num = parseFloat(numStr);
-            
-            // --------------------------------- THAY THẾ KHỐI IF NÀY ---------------------------------
-            if (numStr === "" || isNaN(num) || num < 0 || num > MAX_ALLOWED_NUMBER || !Number.isInteger(num)) {
-                // !Number.isInteger(num) để ngăn người dùng nhập số thập phân
-        
-                // Cập nhật thông báo lỗi chi tiết hơn
-                errorText.textContent = `Lỗi: Vui lòng nhập một số nguyên dương hợp lệ (tối đa ${MAX_ALLOWED_NUMBER.toLocaleString('en-US')}).`;
-                errorMessage.classList.remove('hidden');
-                resultBox.classList.add('hidden');
-                return;
-             }
-            // ---------------------------------------------------------------------------------------
+    const numStr = inputNumber.value.trim();
+    const MAX_LENGTH = MAX_ALLOWED_NUMBER.toString().length;
     
-             convertAndDisplay(num);
-        });
+    // Regex: Chỉ chấp nhận 1 hoặc nhiều chữ số từ 0-9
+    const isNumberRegex = /^[0-9]+$/; 
+    
+    // 1. KIỂM TRA CHUỖI VÀ ĐỘ DÀI
+    if (numStr === "" || !isNumberRegex.test(numStr) || numStr.length > MAX_LENGTH) {
+        
+        let errorMsg = "Lỗi: Nhập đúng số dùm Lợi cái ?.";
+        
+        if (numStr.length > MAX_LENGTH) {
+            // Thông báo lỗi khi số quá giới hạn
+            errorMsg = `Lỗi: Số quá lớn. Vui lòng nhập tối đa ${MAX_ALLOWED_NUMBER.toLocaleString('en-US')} (${MAX_LENGTH} chữ số).`;
+        } else if (numStr.includes('-') || numStr.includes('.')) {
+            // Thông báo lỗi nếu cố tình nhập dấu âm hoặc thập phân (nếu regex bị bypass)
+            errorMsg = "Lỗi: Vui lòng nhập số nguyên dương dùm Lợi=)).";
+        }
+        
+        errorText.textContent = errorMsg;
+        errorMessage.classList.remove('hidden');
+        resultBox.classList.add('hidden');
+        return;
+    }
+    
+    // 2. CHUYỂN ĐỔI CHUỖI SỐ THÀNH SỐ NGUYÊN
+    // Sử dụng parseInt để lấy giá trị số.
+    const num = parseInt(numStr, 10); 
+    
+    convertAndDisplay(num);
+});
 
         // HÀM XỬ LÝ PHÁT ÂM (Tối ưu cho iOS)
         function speakText(text) {
