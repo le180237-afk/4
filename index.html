@@ -608,7 +608,9 @@
     <script>
         // Các hàm tiện ích
         const $ = selector => document.querySelector(selector);
-        const $$ = selector => document.querySelectorAll(selector);
+        const $$ = selector => document.querySelectorAll(selector); 
+        // HẰNG SỐ CỦA ỨNG DỤNG
+        const MAX_ALLOWED_NUMBER = 9999999;
 
         // --- CÀI ĐẶT MATRIX BACKGROUND (JAPANESE CODE STYLE) ---
         const canvas = $('#matrix-background');
@@ -855,7 +857,8 @@
 
 
         function convertToRomaji(num) {
-            if (num < 0 || num > 9999999) return "Số phải nằm trong khoảng 0 đến 9,999,999.";
+            // Sử dụng hằng số đã định nghĩa
+            if (num < 0 || num > MAX_ALLOWED_NUMBER) return `Số phải nằm trong khoảng 0 đến ${MAX_ALLOWED_NUMBER.toLocaleString('en-US')}.`; 
             if (num === 0) return numberMap[0];
 
             let romaji = '';
@@ -1105,16 +1108,21 @@
         // --- EVENT LISTENERS ---
         convertButton.addEventListener('click', () => {
             const numStr = inputNumber.value.trim();
-            const num = parseInt(numStr);
+            const num = parseFloat(numStr);
             
-            if (numStr === "" || isNaN(num)) {
-                 errorText.textContent = "Lỗi: Vui lòng nhập một số hợp lệ.";
-                 errorMessage.classList.remove('hidden');
-                 resultBox.classList.add('hidden');
-                 return;
-            }
-            
-            convertAndDisplay(num);
+            // --------------------------------- THAY THẾ KHỐI IF NÀY ---------------------------------
+            if (numStr === "" || isNaN(num) || num < 0 || num > MAX_ALLOWED_NUMBER || !Number.isInteger(num)) {
+                // !Number.isInteger(num) để ngăn người dùng nhập số thập phân
+        
+                // Cập nhật thông báo lỗi chi tiết hơn
+                errorText.textContent = `Lỗi: Vui lòng nhập một số nguyên dương hợp lệ (tối đa ${MAX_ALLOWED_NUMBER.toLocaleString('en-US')}).`;
+                errorMessage.classList.remove('hidden');
+                resultBox.classList.add('hidden');
+                return;
+             }
+            // ---------------------------------------------------------------------------------------
+    
+             convertAndDisplay(num);
         });
 
         // HÀM XỬ LÝ PHÁT ÂM (Tối ưu cho iOS)
